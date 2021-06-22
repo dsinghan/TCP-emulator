@@ -1,0 +1,61 @@
+~~~~~INFORMATION~~~~~
+Name: Dhruv Singhania
+Email: singhania_dhruv@yahoo.com
+UCLA ID: 105125631
+
+~~~~~CLIENT~~~~~ 
+while packets sent is less than 10 and there is more data to send:
+    send packet and update variables accordingly
+start a timer for the oldest unacked packet
+
+while there are more packets to send:
+    recieve a single ack from the server
+    if the ack the for oldest unacked packet is received:
+        reset the timer
+    if there is more data to send:
+        send a packet and update variables accordingly
+    if the timer for oldest unacked packet times out:
+        resend all packets in current window
+
+~~~~~SERVER~~~~~
+while a fin is not received:
+    recieve a single packet from the client
+    if the packet is a fin:
+        send an ack
+        break out of loop
+    else if the packet is a normal packet:
+        if the sequence number exceeds max and loops around:
+            send ack for that packet (current)
+        else if the server receives already acked packet:
+            send dupack for that packet
+        else if the server receives out of order packet:
+            send dupack for current packet
+        else if the server receives the correct packet:
+            send ack for that packet (current)
+            update variables accordingly
+
+~~~~~PROBLEMS~~~~~
+    One of the biggest problems that I ran into while working on this project
+was dealing with sequence numbers wrapping around the MAX_SEQN. Originally
+my code was comparing the current cliSeqNum and the received packet's sequence
+number and contructing acks or dupacks accordingly. Because of the
+wrap-around, the current cliSeqNum was set to a small value and the server was
+getting high received packet sequence numbers. The server assumed that it was
+getting out-of-order packets, when it was actually receiving earlier packets
+that it needed to dupack. I fixed this issue by setting a new if condition to
+handle this specific case.
+    Another problem that I encountered was figuring out how to make use of a
+single timer instead of one timer for each packet currently in the window.
+Originally I thought of using multiple timers for each unacked packet, but that
+idea was inefficient and harder to implement. The spec recommended using one
+timer, and I implemented that by recording what the least recently unacked
+packet was and setting a timer for that packet only.
+    A different problem I faced was figuring out how to handle out-of-order
+packets. I originally thought I would ignore packets with future sequence
+numbers, but I realized it was more efficient to send a dupack with my current
+cliSeqNum to ensure that the client was made aware of which packet the server
+was currently at.
+
+~~~~~REFERENCES~~~~~
+https://www.geeksforgeeks.org/difference-between-go-back-n-and-selective-repeat-protocol/
+https://pubs.opengroup.org/onlinepubs/007904875/functions/recvfrom.html
