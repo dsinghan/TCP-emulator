@@ -1,7 +1,9 @@
 ~~~~~INFORMATION~~~~~
 Name: Dhruv Singhania
 Email: singhania_dhruv@yahoo.com
-UCLA ID: 105125631
+
+Description:
+        This program emulates TCP protocol over an unreliable UDP connection.
 
 ~~~~~CLIENT~~~~~ 
 while packets sent is less than 10 and there is more data to send:
